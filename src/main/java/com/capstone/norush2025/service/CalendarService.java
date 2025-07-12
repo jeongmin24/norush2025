@@ -57,8 +57,11 @@ public class CalendarService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 특정 사용자가 소유한 특정 캘린더 일정을 조회해서 응답DTO(CalendarInfo)로 반환
+     * */
     @Transactional(readOnly = true)
-    public CalendarResponse.CalendarInfo getCalendarEntryById(String calendarId, String userId) {
+    public CalendarResponse.CalendarInfo getCalendarEntryByCalendarIdAndUserId(String calendarId, String userId) {
 
         User user = userService.getUser(userId);
 
