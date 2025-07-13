@@ -24,7 +24,7 @@ public class FavoriteRoute extends BaseEntity {
     private String startStopName;
     private String endStopName;
 
-    public void update(String name, String type, String routeId, String memo) {
+    public void updateFavoriteRoute(String name, String type, String routeId, String memo) {
         this.name = name;
         this.type = type;
         this.routeId = routeId;

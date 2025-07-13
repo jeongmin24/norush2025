@@ -76,7 +76,7 @@ public class FavoriteRouteService {
         User user = userService.getUser(userId);
         FavoriteRoute existingFavoriteRoute = findFavoriteRouteByFavoriteRouteIdAndUserId(favoriteRouteId, user.getUserId());
 
-        existingFavoriteRoute.update(
+        existingFavoriteRoute.updateFavoriteRoute(
                 request.getName(),
                 request.getType(),
                 request.getRouteId(),
