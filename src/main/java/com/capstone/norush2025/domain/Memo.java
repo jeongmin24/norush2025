@@ -19,4 +19,9 @@ public class Memo extends BaseEntity {
     private String content;
 
     private LocalDateTime timestamp;
+
+    public void updateMemo(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

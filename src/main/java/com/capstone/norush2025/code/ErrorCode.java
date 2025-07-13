@@ -69,6 +69,12 @@ public enum ErrorCode {
     INVALID_PARAMETER(400, "G014", "Invalid parameter"),
     VALIDATION_CONSTRAINT_NOT_FOUND(400, "G015", "No validator found for validation constraint"),
 
+    // 즐겨찾기
+    FAVORITE_ALREADY_EXISTS(500, "F001", "즐겨찾기가 이미 존재합니다."), // code 나중에 409로 고치는것 검토 (리소스 충돌)
+    FAVORITE_NOT_FOUND(500, "F002", "즐겨찾기를 찾을 수 없습니다."),
+
+    // 메모
+    MEMO_NOT_FOUND(500, "I001", "메모를 찾을 수 없습니다."),
 
     // Transaction Insert Error
     INSERT_ERROR(200, "9999", "Insert Transaction Error Exception"),

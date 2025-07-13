@@ -20,9 +20,16 @@ public class FavoriteRoute extends BaseEntity {
     private String type;    // "BUS" or "SUBWAY"
     private String memo;
 
-    private String routeId; // 노선 ID (ex. 123번, 2호선 등)
+    private String routeId; // 즐겨찾기할 노선 ID (ex. 123번, 2호선 등)
     private String startStopName;
     private String endStopName;
+
+    public void updateFavoriteRoute(String name, String type, String routeId, String memo) {
+        this.name = name;
+        this.type = type;
+        this.routeId = routeId;
+        this.memo = memo;
+    }
 
 
 }
