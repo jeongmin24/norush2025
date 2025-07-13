@@ -6,7 +6,7 @@ COPY . .
 RUN chmod +x ./gradlew
 RUN ./gradlew clean build -x test
 
-RUN cp COPY build/libs/norush2025-0.0.1-SNAPSHOT.jar app.jar
+RUN cp build/libs/norush2025-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
