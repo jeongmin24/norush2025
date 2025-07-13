@@ -12,6 +12,6 @@ public class FavoriteRouteAddRequest {
     private String type;      // BUS or SUBWAY
     private String routeId;   // 경로 ID (버스/지하철 등)
     private String memo;
-    private String startStopName;
-    private String endStopName;
+//    private String startStopName;
+//    private String endStopName;
 }

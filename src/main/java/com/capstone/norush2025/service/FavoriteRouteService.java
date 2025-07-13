@@ -31,6 +31,9 @@ public class FavoriteRouteService {
 
         User user = userService.getUser(userId);
 
+        /**
+         * 추후 수정 필요
+         * */
         FavoriteRoute newFavorite = FavoriteRoute.builder()
                 .userId(user.getUserId())
                 .name(request.getName())
