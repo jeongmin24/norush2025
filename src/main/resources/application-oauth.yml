@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+      uri: ${MONGO_URI}
       auto-index-creation: true
     redis:
 #      host: localhost
