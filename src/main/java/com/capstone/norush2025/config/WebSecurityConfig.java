@@ -56,7 +56,12 @@ public class WebSecurityConfig {
             "/swagger-ui.html",
             "none/api/**",
             "/login/oauth2/**",
-            "/oauth2/authorization/**"
+            "/oauth2/authorization/**",
+
+            // 회원가입, 로그인은 인증없이 허용
+            "/api/v1/user/signup",
+            "/api/v1/user/signin",
+            "/api/v1/health"
     };
 
     private final RedisTemplate redisTemplate;
