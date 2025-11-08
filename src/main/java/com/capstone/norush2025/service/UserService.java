@@ -28,6 +28,12 @@ public class UserService {
         }
     }
 
+    // 가입 전 중복확인
+    public Boolean findByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isEmpty();
+    }
+
     public UserResponse.UserInfo updateProfile(User user, FileDto fileDto){
         user.updateProfileImage(fileDto.getUploadFileUrl());
         return new UserResponse.UserInfo(userRepository.save(user));
