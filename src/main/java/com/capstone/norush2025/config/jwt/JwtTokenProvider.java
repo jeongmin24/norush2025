@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.print.DocFlavor;
 import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -113,10 +114,16 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
+        String userId = claims.get(USER_ID, String.class);
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("토큰에 USER_ID 클레임이 없습니다.");
+        }
 
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(claims.get(USER_ID, String.class));
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId);
+
+        // Authentication객체를 만들때 UserDetails(사용자정보), Authorities(권한정보)만 담음
 //        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-        return new UsernamePasswordAuthenticationToken(userDetails, accessToken, userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
 

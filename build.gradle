@@ -44,6 +44,8 @@ dependencies {
     // health check path
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // webclient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

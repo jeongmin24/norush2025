@@ -50,9 +50,17 @@ public class AuthController {
     @PostMapping("signin")
     public ResponseEntity<SuccessResponse<UserResponse.TokenInfo>> signIn(@Valid @RequestBody UserRequest.SignIn signIn){
         UserResponse.TokenInfo tokenInfo = tokenService.createToken(signIn);
-        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, tokenInfo);
+        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, tokenInfo); // SELECT_SUCCESS 로 고쳐야될듯?
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @Operation(summary = "가입 전 이메일 중복확인")
+    @GetMapping("/exist")
+    public ResponseEntity<Boolean> checkEmailDuplicate(@RequestParam String email) {
+        boolean exists = userService.findByEmail(email);
+        return ResponseEntity.ok(exists);
+    }
+
 
     @Operation(summary = "토큰 갱신")
     @PostMapping("reissue")

@@ -34,7 +34,7 @@ public class TokenService {
     public UserResponse.TokenInfo createToken(UserRequest.SignIn signIn){
         User getUser = userRepository.findByEmail(signIn.getEmail()).orElseThrow(() -> new IllegalArgumentException("이메일 정보가 없습니다"));
         if(!passwordEncoder.matches(signIn.getPassword(),getUser.getPassword())) throw new IllegalArgumentException("잘못된 비밀번호 입니다");
-        CustomUserInfoDto userInfo = modelMapper.map(getUser, CustomUserInfoDto.class);
+        CustomUserInfoDto userInfo = modelMapper.map(getUser, CustomUserInfoDto.class); // User엔티티 -> DTO 변환
         UserResponse.TokenInfo  tokenInfo = jwtTokenProvider.generateToken(userInfo);
         tokenInfo.setUserInfo(new UserResponse.UserInfo(getUser));
         //RefreshToken Redis 저장 (expirationTime 설정을 통해 자동 삭제 처리)

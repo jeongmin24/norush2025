@@ -22,8 +22,13 @@ spring:
     writer-with-default-pretty-printer: true
     model-and-view-allowed: true
     override-with-generic-response: true
+
 management:
   endpoints:
     web:
       exposure:
         include: health
+
+tmap:
+  api:
+    key: ${TMAP_API}

@@ -36,12 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private  final CustomUserDetailsService customUserDetailsService;
 
+    // 인증객체 생성
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
         String uri = request.getRequestURI();
 
-        log.info("[JwtFilter] URI: {}", uri);
 
         /**
          * 소셜 로그인 경로는 필터 패스
@@ -102,7 +102,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 예외가 발생하지 않은 경우에는 계속 다음 필터 또는 서블릿으로 요청을 전달
-        chain.doFilter(request, response);
+            chain.doFilter(request, response);
     }
 
     private void handleUnauthorizedException(String message,HttpServletResponse response) throws IOException {
@@ -149,9 +149,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // Request Header 에서 토큰 정보 추출
     private String resolveToken(HttpServletRequest request) {
+
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_TYPE)) {
-            return bearerToken.substring(7);
+            String token = bearerToken.substring(7);
+            System.out.println("[JwtFilter] 추출된 토큰 = " + token);
+            return token;
         }
         return null;
     }

@@ -1,0 +1,69 @@
+package com.capstone.norush2025.service;
+
+import com.capstone.norush2025.dto.response.RouteResponse;
+import com.capstone.norush2025.infra.TmapClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import com.capstone.norush2025.domain.user.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.util.RouteMatcher;
+import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class RouteService {
+
+    private final TmapClient tmapClient;
+    //private final PredictClient predictClient;
+    private final ObjectMapper objectMapper; // 주입받으면 자동 빈 사용 가능
+    private final UserService userService;
+
+    // α, β는 가중치 — 프로젝트 설정값으로 빼도 좋음
+    private static final double TIME_WEIGHT = 0.6;
+    private static final double CONGESTION_WEIGHT = 0.4;
+
+    public RouteResponse findRoute(String userId, double startX, double startY, double endX, double endY) {
+
+        User user = userService.getUser(userId);
+
+        System.out.println("[RouteService] Tmap 요청 시작");
+        System.out.println("요청자: " + user.getUserId());
+        System.out.println("요청자 이름: " + user.getName());
+
+        // tmap 서버 호출
+        Map<String, Object> responseMap = tmapClient.requestTransitRoute(startX, startY, endX, endY);
+
+        // metaData → plan → itineraries 추출
+        Map<String, Object> metaData = (Map<String, Object>) responseMap.get("metaData");
+        if (metaData == null) throw new RuntimeException("metaData 없음");
+
+        Map<String, Object> plan = (Map<String, Object>) metaData.get("plan");
+        if (plan == null) throw new RuntimeException("plan 없음");
+
+        List<Map<String, Object>> itineraries = (List<Map<String, Object>>) plan.get("itineraries");
+
+        System.out.println("📦 [RouteService] itineraries 개수: " + itineraries.size());
+
+        // itineraries JSON → RouteResponse.RouteInfo 리스트로 변환
+        List<RouteResponse.RouteInfo> routeInfoList = itineraries.stream()
+                .map(it -> objectMapper.convertValue(it, RouteResponse.RouteInfo.class))
+                .toList();
+
+        // RouteResponse 생성
+        return RouteResponse.builder()
+                .message("Tmap 요청 성공")
+                .routes(routeInfoList)
+                .build();
+
+
+    }
+
+}
+
