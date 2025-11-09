@@ -1,10 +1,13 @@
 package com.capstone.norush2025.service;
 
+import com.capstone.norush2025.dto.response.ODsayRouteResponse;
 import com.capstone.norush2025.dto.response.RouteResponse;
+import com.capstone.norush2025.infra.ODSayClient;
 import com.capstone.norush2025.infra.TmapClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import com.capstone.norush2025.domain.user.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,11 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RouteService {
 
     private final TmapClient tmapClient;
+    private final ODSayClient odsayClient;
     //private final PredictClient predictClient;
     private final ObjectMapper objectMapper; // 주입받으면 자동 빈 사용 가능
     private final UserService userService;
@@ -63,6 +68,32 @@ public class RouteService {
                 .build();
 
 
+    }
+
+    public ODsayRouteResponse findRouteByOdsay(String userId, double startX, double startY, double endX, double endY) {
+        log.info("👤 사용자: {}, ODsay 경로 조회 start=({}, {}), end=({}, {})", userId, startX, startY, endX, endY);
+
+        // Map 형태로 응답 받기
+        Map<String, Object> rawResponse = odsayClient.requestTransitRoute(startX, startY, endX, endY);
+
+        // Map → DTO 변환
+        ODsayRouteResponse dto = objectMapper.convertValue(rawResponse, ODsayRouteResponse.class);
+
+        // 로깅용 요약
+        if (dto.getResult() != null && dto.getResult().getPath() != null) {
+            log.info("🛤 후보경로 개수: {}", dto.getResult().getPath().size());
+            dto.getResult().getPath().forEach(path -> {
+                if (path.getInfo() != null) {
+                    log.info(" - [{}] {}분, 요금 {}원, 환승 {}회",
+                            path.getPathType(),
+                            path.getInfo().getTotalTime(),
+                            path.getInfo().getPayment(),
+                            path.getInfo().getBusTransitCount() + path.getInfo().getSubwayTransitCount());
+                }
+            });
+        }
+
+        return dto;
     }
 
 }

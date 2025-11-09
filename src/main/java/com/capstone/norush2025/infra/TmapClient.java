@@ -37,7 +37,7 @@ public class TmapClient {
                 "startY", startY,
                 "endX", endX,
                 "endY", endY,
-                "count", 1,
+                "count", 10, // 후보 경로 10개받기
                 "lang", 0,
                 "format", "json",
                 "resCoordType", "WGS84GEO",   // 위경도 좌표계 (좌표계 지정)
