@@ -39,7 +39,6 @@ public class ODsayRouteResponse {
         private Integer stationCount; //이동하여 정차하는 정거장수 (지하철,버스인 경우만 필수)
         private Integer sectionTime;    //이동소요시간
         private List<Lane> lane;  //교통수단정보확장
-        //intervalTime
         private Integer intervalTime; //평균 배차간격(분)
         private String startName; // 승차정류장/역 명
         private Double startX; //승차정류장/역 X좌표
@@ -50,18 +49,13 @@ public class ODsayRouteResponse {
         private String way; //방면 정보 (지하철)
         private Integer wayCode; //방면 정보 코드 1-상행 2-하행
         private String door; // 지하철 빠른 환승위치
-        //startID
         private Integer startID; //출발 정류장/역 코드
-        //endID
         private Integer endID; //도착 정류장/역 코드
         private String startExitNo; //지하철 들어가는 출구번호
         private Double startExitX; // 지하철 들어가는 출구 X좌표
         private Double startExitY; // 지하철 둘어가는 출구 Y좌표 (지하철인 경우에만 사용되지만 해당 태그가 없을 수도 있음)
-        //EndExitNo
         private String endExitNo; //지하철 나가는 출구번호
-        //endExitX
         private Double endExitX; //지하철 나가는 출구 X좌표
-        //endExitY
         private Double endExitY; //지하철 나가는 출구 Y좌표
         private PassStopList passStopList; //경로 상세구간 정보
     }
