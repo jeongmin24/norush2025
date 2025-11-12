@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
+/**
+ * odsay lab api 응답 매핑 dto
+ * */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
