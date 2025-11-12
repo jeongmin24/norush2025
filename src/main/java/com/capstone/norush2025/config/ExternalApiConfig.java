@@ -11,7 +11,7 @@ public class ExternalApiConfig {
 
     // WebClient Bean 등록
     @Bean
-    @Qualifier("tmapWebClient")
+    @Qualifier("WebClient")
     public WebClient webClient(WebClient.Builder builder) {
         return builder.build();
     }

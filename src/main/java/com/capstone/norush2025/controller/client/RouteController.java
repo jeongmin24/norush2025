@@ -2,21 +2,18 @@ package com.capstone.norush2025.controller.client;
 
 import com.capstone.norush2025.dto.request.RouteRequest;
 import com.capstone.norush2025.dto.response.ODsayRouteResponse;
+import com.capstone.norush2025.dto.response.PredictResponse;
 import com.capstone.norush2025.dto.response.RouteResponse;
-import com.capstone.norush2025.infra.ODSayClient;
+import com.capstone.norush2025.dto.response.TmapRouteResponse;
 import com.capstone.norush2025.response.ErrorResponse;
 import com.capstone.norush2025.service.RouteService;
-import com.capstone.norush2025.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,7 +29,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class RouteController {
 
     private final RouteService routeService;
-    private final ODSayClient odSayClient;
 
     @Value("${odsay.api.key}")
     private String apiKey;
@@ -58,7 +54,7 @@ public class RouteController {
             @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/tmap/test")
-    public ResponseEntity<RouteResponse> testRoute(
+    public ResponseEntity<TmapRouteResponse> testRoute(
             @RequestBody RouteRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -78,7 +74,7 @@ public class RouteController {
         System.out.printf("출발(%.4f, %.4f) → 도착(%.4f, %.4f)%n", startX, startY, endX, endY);
 
         // 2. 서비스 호출 (Tmap API 요청) - 인증정보 함께 넘겨줌
-        RouteResponse response = routeService.findRoute(userId, startX, startY, endX, endY);
+        TmapRouteResponse response = routeService.findRoute(userId, startX, startY, endX, endY);
 
         // 3. 응답 반환
         return ResponseEntity.ok(response);
@@ -114,6 +110,41 @@ public class RouteController {
 
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "혼잡도 경로 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "요청 형식 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "경로 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/predict")
+    public ResponseEntity<RouteResponse> getPredictedRoute(
+            @RequestBody RouteRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        String userId = userDetails.getUsername();
+
+        log.info("📍 경로 예측 요청: origin=({}, {}), dest=({}, {}), user={}",
+                request.getOrigin().getLng(),
+                request.getOrigin().getLat(),
+                request.getDestination().getLng(),
+                request.getDestination().getLat(),
+                userId);
+
+        RouteResponse response = routeService.findRouteWithCongestion(
+                userId,
+                request.getOrigin().getLng(), // startX (경도)
+                request.getOrigin().getLat(), // startY (위도)
+                request.getDestination().getLng(), // endX (경도)
+                request.getDestination().getLat()  // endY (위도)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

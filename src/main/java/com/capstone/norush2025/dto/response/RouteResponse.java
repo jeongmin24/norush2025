@@ -3,148 +3,172 @@ package com.capstone.norush2025.dto.response;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Tmap 응답 매핑용 DTO - tmap 응답 형식 그대로
- * 대중교통 api의 plan(itineraries)을 가져옴
+ * 경로 검색 결과(UI표시) + 혼잡도 스코어 dto
  * */
-@Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Data @Builder
+@NoArgsConstructor @AllArgsConstructor
 public class RouteResponse {
+    private String message; // " 혼잡도 예측 성공 "
+    private Result result;
 
-    private String message;
-    private List<RouteInfo> routes; // tmap에서 여러개의 경로를 응답
-
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class RouteInfo {
-        private Integer pathType;       // 경로 유형 (도보/버스/지하철 등 복합)
-        private Integer transferCount;      // 환승 횟수
-        private Integer totalTime;       // 전체 소요시간 (분)
-        private Integer totalDistance;      // 총 이동거리 (m)
-        private Integer totalWalkTime;     // 전체 도보 시간 (분)
-        private Integer totalWalkDistance; // 전체 도보 거리 (m)
-        private Fare fare;                 // 요금 정보
-        private List<Leg> legs; // 한 경로의 세부 경로
+    public static class Result {
+        private Integer searchType; //결과 구분 0-도시내 1-도시간직통 2-도시간환승
+        private Integer outTrafficCheck; //도시간 직통 탐색 결과 유무 0-False 1-True
+        private Integer busCount; // 버스 결과 개수
+        private Integer subwayCount; // 지하철 결과 개수
+        private Integer subwayBusCount; //버스+지하철 결과개수
+        private Double pointDistance; //출발지(SX,XY)와 도착지(EX,EY)의 직선거리 (m)
+        private Integer startRadius; //출발지 반경
+        private Integer endRadius; //도착지 반경
+        private List<Route> route; // 후보경로 리스트
     }
 
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Fare {
-        private Regular regular; // 금액 상위노드
+    public static class Route {
+        private Integer routeType; // 결과 종류 1-지하철 2-버스 3-지하철+버스
+        private Info info; // 요약 정보
+        private List<Section> section; // 이동 교통수단 정보
 
-        @Getter
-        @NoArgsConstructor
-        @AllArgsConstructor
-        @Builder
-        public static class Regular {
-            private Integer totalFare; //대중교통요금
-            private Currency currency; //금액 상위노드
-        }
-
-        @Getter
-        @NoArgsConstructor
-        @AllArgsConstructor
-        @Builder
-        public static class Currency {
-            private String symbol; // 금액상징($)
-            private String currency; // 금액단위(원)
-            private String currencyCode; //금액단위코드(KRW)
-        }
     }
 
-    @Getter
+
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Leg {
-        private String mode;              // WALK, BUS, SUBWAY, EXP, TRAIN, AIRPLANE, FERRY
-        private Integer sectionTime; // 구간별 소요시간(분)
-        private Integer distance;   // 구간별 이동거리 (m)
-        private String route;             // 노선 명칭
-        private String routeColor;         // 노선 색상
-        private String routeId;             // 노선 ID
-        private String type;        // 이동수단별 노선코드 (1-도보, 2-버스, 3-지하철, 4-고속/시외버스, 5-기차, 6-항공, 7-해운)
-        private Integer routePayment;   //광역이동수단 요금
-        private Integer service;        // 이동수단 운행여부 (1:운행중/0:운행종료)
-        private List<Lane> lane;          // 구간 내 여러 노선
-        private StartEndPoint start; //구간별 출발정보
-        private StartEndPoint end;  //구간별 도착정보
-        private List<Step> steps;         // 도보 구간 상세
-        private PassShape passShape;        // 경로선분
-        private PassStopList passStopList;      // 대중교통 구간 정류장 정보
+    public static class Section {
+        private Integer trafficType; // 이동수단 종류 1-지하철 2-버스 3-도보
+        private Double distance;   //이동거리(m)
+        private Integer stationCount; //이동하여 정차하는 정거장수 (지하철,버스인 경우만 필수)
+        private Integer sectionTime;    //이동소요시간
+        private List<Lane> lane;  //교통수단정보확장
+        private Integer intervalTime; //평균 배차간격(분)
+
+        private String startName; // 승차정류장/역 명
+        private Double startX; //승차정류장/역 X좌표
+        private Double startY; //승차정류장/역 Y좌표
+
+        private String endName; // 하차정류장/역 명
+        private Double endX; //하차정류장/역 X좌표
+        private Double endY; //하차정류장/역 Y좌표
+
+        private String way; //방면 정보 (지하철)
+        private Integer wayCode; //방면 정보 코드 1-상행 2-하행
+
+        private String door; // 지하철 빠른 환승위치
+        private Integer startID; //출발 정류장/역 코드
+        private Integer endID; //도착 정류장/역 코드
+        private String startExitNo; //지하철 들어가는 출구번호
+        private Double startExitX; // 지하철 들어가는 출구 X좌표
+        private Double startExitY; // 지하철 둘어가는 출구 Y좌표 (지하철인 경우에만 사용되지만 해당 태그가 없을 수도 있음)
+        private String endExitNo; //지하철 나가는 출구번호
+        private Double endExitX; //지하철 나가는 출구 X좌표
+        private Double endExitY; //지하철 나가는 출구 Y좌표
+
+        private PassStopList passStopList; //경로 상세구간 정보
+        /**
+         * 예측결과
+         * */
+        private SectionSummary sectionSummary; // 섹션 혼잡도 요약
     }
 
-    @Getter
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SectionSummary {
+        private StartEndStation startStation; // 승차 정류장
+        private StartEndStation endStation;   // 하차 정류장
+        private Double avgCongestion;         // 구간 평균 혼잡도
+        private Double maxCongestion;         // 구간 최대 혼잡도
+        private Integer totalExpectedBoarding;
+        private Integer totalExpectedAlighting;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class StartEndStation { //승하차 정류장 예상승하차인원
+        private String name;
+        private Integer expectedBoarding;
+        private Integer expectedAlighting;
+    }
+
+
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class Lane {
-        private Integer service;
-        private String route;
-        private String routeColor;
-        private String routeId;
-        private String type;
+        private String name; // 지하철 노선명
+        private String nameKor; //지하철 노선명 국문
+        private String busNo; //버스 번호
+        private String busNoKor; //버스 번호 국문
+        private Integer subwayCode; // 지하철 노선 번호
+        private Integer subwayCityCode;
+        private Integer busID; //버스 코드
+        private Integer busCityCode; //운수 회사 승인 도시코드 (버스)
+        private String busLocalBlID; //각 지역 버스노선 ID
     }
 
-
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class StartEndPoint {
-        private String name;
-        private Double lon;
-        private Double lat;
+    public static class Info {
+        private Integer totalTime; // 총 소요시간
+        private Double totalDistance; // 총 이동거리
+        private Integer totalWalk;  //총 도보 이동거리
+        private Integer payment;    //총 요금
+        private Integer busTransitCount;    //버스 환승 횟수
+        private Integer subwayTransitCount; //지하철 환승 횟수
+        private String mapObj; //세부경로 요청 api 파라미터
+        private String firstStartStation; //최초 출발역/정류장
+        private String lastEndStation; //최종 도착역/정류장
+        private Integer totalStationCount; //총 정류장 합
+        private Integer busStationCount; //버스 정류장 합
+        private Integer subwayStationCount; //지하철 정류장 합
+        private Double trafficDistance; //도보를 제외한 총이동거리
+        private Integer checkIntervalTime; // 배차시간 간격 체크 기준 시간(분)
+        private String checkIntervalTimeOverYn; //배차간격 체크 기준시간 초과 노선 여부 (Y/N)
+        private Integer totalIntervalTime; // 전체 배차간격 시간(분)
     }
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class Step {
-        private Double distance;
-        private String streetName;
-        private String description;
-        private String linestring;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class PassShape {
-        private String linestring;
-    }
-
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class PassStopList {
-        private List<Station> stations;
+        private List<Station> stations; //정류장 정보 그룹
     }
 
-
-    // 정류장 상세 정보
-    @Getter
+    @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     public static class Station {
-        private Integer index;
-        private String stationID;
-        private String stationName;
-        private String lon; // String으로 응답받음
-        private String lat; // String
+        private Integer index; //정류장 순번
+        private Integer stationID; //정류장 ID
+        private String stationName; //정류장 명칭
+        private Double x; //정류장 X좌표
+        private Double y; //정류장 y좌표
+        private String isNonStop; //미정차 정류자 여부(버스)
+
+        /**
+         * 예측 결과
+         * */
+        private Integer expectedBoarding;     // 예상 승차 인원
+        private Integer expectedAlighting;    // 예상 하차 인원
+        private List<Double> predictedCongestionCar; // 칸별 혼잡도
     }
-
-
 }
