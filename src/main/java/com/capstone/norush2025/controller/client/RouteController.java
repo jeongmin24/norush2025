@@ -111,7 +111,7 @@ public class RouteController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "혼잡도 경로 조회")
+    @Operation(summary = "혼잡도 경로 조회 - 좌표직접요청")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "400", description = "요청 형식 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
