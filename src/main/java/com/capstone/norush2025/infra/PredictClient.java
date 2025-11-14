@@ -30,9 +30,8 @@ public class PredictClient {
         PredictRequest request = PredictRequest.builder()
                 .routes(routes)
                 .build();
-
         return webClient.post()
-                .uri("http://127.0.0.1:8000/api/v1/predict/congestion") // 혼잡도 서버 주소
+                .uri("https://fastapi-server-6oi6.onrender.com/api/v1/predict/congestion") // 혼잡도 서버 주소
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
