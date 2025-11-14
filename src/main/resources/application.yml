@@ -36,3 +36,7 @@ tmap:
 odsay:
   api:
     key: ${ODSAY_API}
+
+kakao:
+  api:
+    key: ${KAKAO_LOCAL_API}

@@ -1,12 +1,14 @@
 package com.capstone.norush2025.controller.client;
 
+import com.capstone.norush2025.common.Coordinate;
 import com.capstone.norush2025.dto.request.RouteRequest;
+import com.capstone.norush2025.dto.request.RouteStationRequest;
 import com.capstone.norush2025.dto.response.ODsayRouteResponse;
-import com.capstone.norush2025.dto.response.PredictResponse;
 import com.capstone.norush2025.dto.response.RouteResponse;
 import com.capstone.norush2025.dto.response.TmapRouteResponse;
 import com.capstone.norush2025.response.ErrorResponse;
 import com.capstone.norush2025.service.RouteService;
+import com.capstone.norush2025.service.StationCoordinateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/route")
@@ -29,6 +33,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class RouteController {
 
     private final RouteService routeService;
+    private final StationCoordinateService stationCoordinateService;
 
     @Value("${odsay.api.key}")
     private String apiKey;
@@ -107,6 +112,45 @@ public class RouteController {
         System.out.printf("출발(%.4f, %.4f) → 도착(%.4f, %.4f)%n", startX, startY, endX, endY);
 
         ODsayRouteResponse response = routeService.findRouteByOdsay(userId, startX, startY, endX, endY);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "혼잡도 경로 조회 - 출발역, 도착역 입력형식")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "요청 형식 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "경로 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/predict/station")
+    public ResponseEntity<RouteResponse> getPredictedRouteByStation(
+            @RequestBody RouteStationRequest request,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userId = userDetails.getUsername();
+
+        // 1) 역 → 좌표 변환
+        Coordinate origin = stationCoordinateService.findCoordinate(request.getFrom());
+        Coordinate destination = stationCoordinateService.findCoordinate(request.getTo());
+
+        // 2) datetime 처리 (옵션)
+        String departure = request.getDatetime();
+        if (departure == null || departure.isBlank()) {
+            // datetime이 없으면 현재시간을 기본값으로 사용
+            departure = LocalDateTime.now().toString();
+        }
+
+        // 좌표기반 경로조회 및 혼잡도 스코어 정렬
+        RouteResponse response = routeService.findRouteWithCongestion(
+                userId,
+                origin.getLng(),
+                origin.getLat(),
+                destination.getLng(),
+                destination.getLat()
+
+        );
 
         return ResponseEntity.ok(response);
     }
