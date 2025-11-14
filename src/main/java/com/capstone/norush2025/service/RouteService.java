@@ -1,6 +1,8 @@
 package com.capstone.norush2025.service;
 
+import com.capstone.norush2025.domain.RouteDocument;
 import com.capstone.norush2025.dto.request.PredictRequest;
+import com.capstone.norush2025.dto.request.SaveRouteRequest;
 import com.capstone.norush2025.dto.response.ODsayRouteResponse;
 import com.capstone.norush2025.dto.response.PredictResponse;
 import com.capstone.norush2025.dto.response.RouteResponse;
@@ -8,6 +10,7 @@ import com.capstone.norush2025.dto.response.TmapRouteResponse;
 import com.capstone.norush2025.infra.ODSayClient;
 import com.capstone.norush2025.infra.PredictClient;
 import com.capstone.norush2025.infra.TmapClient;
+import com.capstone.norush2025.repository.RouteRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import com.capstone.norush2025.domain.user.User;
@@ -30,6 +33,7 @@ public class RouteService {
     private final PredictClient predictClient;
     private final ObjectMapper objectMapper; // 주입받으면 자동 빈 사용 가능
     private final UserService userService;
+    private final RouteRepository routeRepository;
 
     // α, β는 가중치 — 프로젝트 설정값으로 빼도 좋음
     private static final double TIME_WEIGHT = 0.6;
@@ -70,6 +74,21 @@ public class RouteService {
 
 
     }
+
+    // 경로 저장
+    public Long saveRoute(String userId, SaveRouteRequest req) {
+        RouteDocument doc = RouteDocument.builder()
+                .userId(userId)
+                .startX(req.getStartX())
+                .startY(req.getStartY())
+                .endX(req.getEndX())
+                .endY(req.getEndY())
+                .build();
+
+        RouteDocument saved = routeRepository.save(doc);
+        return saved.getRouteId();
+    }
+
 
     public ODsayRouteResponse findRouteByOdsay(String userId, double startX, double startY, double endX, double endY) {
         log.info("👤 사용자: {}, ODsay 경로 조회 start=({}, {}), end=({}, {})", userId, startX, startY, endX, endY);

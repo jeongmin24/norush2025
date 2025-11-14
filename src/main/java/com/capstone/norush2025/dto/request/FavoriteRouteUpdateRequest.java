@@ -7,7 +7,5 @@ import lombok.Setter;
 @Setter
 public class FavoriteRouteUpdateRequest {
     private String name;
-    private String type;
-    private String routeId;
-    private String memo;
+
 }

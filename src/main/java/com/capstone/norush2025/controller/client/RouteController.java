@@ -3,6 +3,7 @@ package com.capstone.norush2025.controller.client;
 import com.capstone.norush2025.common.Coordinate;
 import com.capstone.norush2025.dto.request.RouteRequest;
 import com.capstone.norush2025.dto.request.RouteStationRequest;
+import com.capstone.norush2025.dto.request.SaveRouteRequest;
 import com.capstone.norush2025.dto.response.ODsayRouteResponse;
 import com.capstone.norush2025.dto.response.RouteResponse;
 import com.capstone.norush2025.dto.response.TmapRouteResponse;
@@ -24,12 +25,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/route")
 @RequiredArgsConstructor
-@Tag(name = "경로 조회 API", description = "Tmap을 이용한 대중교통 경로 조회 및 예측 관련 API")
+@Tag(name = "경로 조회 API", description = "대중교통 api를 이용한 대중교통 경로 조회 및 예측 관련 API")
 public class RouteController {
 
     private final RouteService routeService;
@@ -188,6 +190,24 @@ public class RouteController {
 
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "혼잡도 경로 저장 - addFavoriteRoute로 대체, 사용X")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "요청 형식 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "경로 정보를 찾을 수 없음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/route/save")
+    public ResponseEntity<?> saveRoute(
+            @RequestHeader("userId") String userId,
+            @RequestBody SaveRouteRequest req
+    ) {
+        Long routeId = routeService.saveRoute(userId, req);
+        return ResponseEntity.ok(Map.of("routeId", routeId));
+    }
+
 
 
 
