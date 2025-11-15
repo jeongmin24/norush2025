@@ -57,7 +57,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                             .build()));
 
             // CustomUserDetails로 변환하여 반환
-            return new CustomUserDetails(CustomUserInfoDto.from(user));
+            return customOAuth2User
         } catch (Exception e) {
             log.error("OAuth2 로그인 실패: {}", e.getMessage(), e);
             throw new OAuth2AuthenticationException(new OAuth2Error("oauth2_error", "OAuth2 로그인 중 오류 발생", null), e);
