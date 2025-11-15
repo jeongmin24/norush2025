@@ -8,23 +8,23 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-/**
- *  카카오에서 받아온 raw 데이터 파싱
- * */
+
 @Slf4j
 public class CustomOAuth2User implements OAuth2User {
 
-    private final OAuth2User oAuth2User;
-    private final String providerId;
-    private final String email;
-    private final String nickname;
-    private final String profileImage;
-    private final AuthProvider provider;
+    private OAuth2User oAuth2User;
+    private String providerId;
+    private String email;
+    private String nickname;
+    private String profileImage;
+    private AuthProvider provider;
 
     public CustomOAuth2User(OAuth2User oAuth2User, String registrationId, String providerIdAttrName) {
         this.oAuth2User = oAuth2User;
-        this.provider = AuthProvider.valueOf(registrationId.toUpperCase()); // registrationId: 플랫폼 이름
-        this.providerId = String.valueOf(oAuth2User.getAttribute(providerIdAttrName)); // providerIdAttrName: "id", "sub" 등 소셜에서 제공하는 id 필드 이름
+        
+        this.provider = AuthProvider.valueOf(registrationId.toUpperCase());
+        
+        this.providerId = String.valueOf(oAuth2User.getAttribute(providerIdAttrName)); 
 
         if (provider == AuthProvider.KAKAO) {
             Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
@@ -32,7 +32,7 @@ public class CustomOAuth2User implements OAuth2User {
 
             this.email = kakaoAccount.get("email") != null
                     ? (String) kakaoAccount.get("email")
-                    : "kakao_" + this.providerId + "@noemail.com";  // 또는 null-safe 처리
+                    : "kakao_" + this.providerId + "@noemail.com";
 
             this.nickname = props.get("nickname") != null
                     ? (String) props.get("nickname")
@@ -46,22 +46,39 @@ public class CustomOAuth2User implements OAuth2User {
             this.email = oAuth2User.getAttribute("email");
             this.nickname = oAuth2User.getAttribute("name");
             this.profileImage = oAuth2User.getAttribute("picture");
+            
+        } else if (provider == AuthProvider.NAVER) { // NAVER 로직
+            Map<String, Object> response = oAuth2User.getAttribute("response");
+
+            if (response != null && response.containsKey("id")) {
+                this.providerId = (String) response.get("id");
+
+            this.email = response.get("email") != null
+                    ? (String) response.get("email")
+                    : "naver_" + this.providerId + "@noemail.com";
+
+            this.nickname = response.get("name") != null
+                    ? (String) response.get("name")
+                    : "사용자" + this.providerId;
+
+            this.profileImage = response.get("profile_image") != null
+                    ? (String) response.get("profile_image")
+                    : null;
         } else {
             this.email = null;
             this.nickname = null;
             this.profileImage = null;
         }
 
-        log.info("✅ provider: {}, providerId: {}", provider, providerId);
-        log.info("✅ email: {}, nickname: {}, profileImage: {}", email, nickname, profileImage);
+        log.info("provider: {}, providerId: {}", provider, providerId);
+        log.info("email: {}, nickname: {}, profileImage: {}", email, nickname, profileImage);
+    }
     }
 
-    public String getProviderId() { return providerId; } // 소셜 사용자 고유 ID
+    public String getProviderId() { return providerId; }
     public String getEmail() { return email; }
 
-    public String getNickname() {
-        return nickname;
-    } // 실제 소셜 닉네임
+    public String getNickname() { return nickname; }
 
     public String getProfileImage() { return profileImage; }
     public AuthProvider getProvider() { return provider; }
@@ -75,9 +92,6 @@ public class CustomOAuth2User implements OAuth2User {
     }
 
     @Override
-    public String getName() { return providerId; }  // OAuth2User 인터페이스 요구사항 (고유 식별자)
-
-
-
+    public String getName() { return providerId; }
 }
 
