@@ -21,7 +21,6 @@ public class CustomOAuth2User implements OAuth2User {
 
     public CustomOAuth2User(OAuth2User oAuth2User, String registrationId, String providerIdAttrName) {
         this.oAuth2User = oAuth2User;
-        
         this.provider = AuthProvider.valueOf(registrationId.toUpperCase());
         
         this.providerId = String.valueOf(oAuth2User.getAttribute(providerIdAttrName)); 
@@ -47,23 +46,25 @@ public class CustomOAuth2User implements OAuth2User {
             this.nickname = oAuth2User.getAttribute("name");
             this.profileImage = oAuth2User.getAttribute("picture");
             
-        } else if (provider == AuthProvider.NAVER) { // NAVER 로직
+        } else if (provider == AuthProvider.NAVER) {
             Map<String, Object> response = oAuth2User.getAttribute("response");
 
             if (response != null && response.containsKey("id")) {
                 this.providerId = (String) response.get("id");
+            }
 
-            this.email = response.get("email") != null
+            this.email = response != null && response.get("email") != null
                     ? (String) response.get("email")
                     : "naver_" + this.providerId + "@noemail.com";
 
-            this.nickname = response.get("name") != null
+            this.nickname = response != null && response.get("name") != null
                     ? (String) response.get("name")
                     : "사용자" + this.providerId;
 
-            this.profileImage = response.get("profile_image") != null
+            this.profileImage = response != null && response.get("profile_image") != null
                     ? (String) response.get("profile_image")
                     : null;
+                
         } else {
             this.email = null;
             this.nickname = null;
@@ -72,7 +73,6 @@ public class CustomOAuth2User implements OAuth2User {
 
         log.info("provider: {}, providerId: {}", provider, providerId);
         log.info("email: {}, nickname: {}, profileImage: {}", email, nickname, profileImage);
-    }
     }
 
     public String getProviderId() { return providerId; }
