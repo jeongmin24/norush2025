@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/calendars")
@@ -41,10 +43,13 @@ public class CalendarController {
     @PostMapping
     public ResponseEntity<SuccessResponse<CalendarResponse.CalendarInfo>> addCalendarEntry(
             @Valid @RequestBody CalendarAddRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal OAuth2AuthenticationToken authentication
             ) {
         String userId = userDetails.getUsername(); //userId
-        CalendarResponse.CalendarInfo calendarInfo = calendarService.addCalendarEntry(userId, request);
+
+        Optional<OAuth2AuthenticationToken> authOpt = Optional.ofNullable(authentication);
+        CalendarResponse.CalendarInfo calendarInfo = calendarService.addCalendarEntry(userId, request, authOpt);
         SuccessResponse<CalendarResponse.CalendarInfo> response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, calendarInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -102,10 +107,12 @@ public class CalendarController {
     public ResponseEntity<SuccessResponse<CalendarResponse.CalendarInfo>> updateCalendarEntry(
             @PathVariable String calendarId,
             @Valid @RequestBody CalendarUpdateRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal OAuth2AuthenticationToken authentication
     ) {
         String userId = userDetails.getUsername();
-        CalendarResponse.CalendarInfo updatedCalendar = calendarService.updateCalendarEntry(calendarId, userId, request);
+        Optional<OAuth2AuthenticationToken> authOpt = Optional.ofNullable(authentication);
+        CalendarResponse.CalendarInfo updatedCalendar = calendarService.updateCalendarEntry(calendarId, userId, request, authOpt);
         SuccessResponse<CalendarResponse.CalendarInfo> response = SuccessResponse.of(SuccessCode.UPDATE_SUCCESS, updatedCalendar);
         return ResponseEntity.ok(response);
     }

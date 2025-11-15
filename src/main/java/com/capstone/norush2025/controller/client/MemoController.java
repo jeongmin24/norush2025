@@ -3,7 +3,6 @@ package com.capstone.norush2025.controller.client;
 import com.capstone.norush2025.code.SuccessCode;
 import com.capstone.norush2025.dto.request.MemoAddRequest;
 import com.capstone.norush2025.dto.request.MemoUpdateRequest;
-import com.capstone.norush2025.dto.response.FavoriteRouteResponse;
 import com.capstone.norush2025.dto.response.MemoResponse;
 import com.capstone.norush2025.response.ErrorResponse;
 import com.capstone.norush2025.response.SuccessResponse;
@@ -20,9 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/memos")
@@ -42,10 +43,18 @@ public class MemoController {
     @PostMapping
     public ResponseEntity<SuccessResponse<MemoResponse.MemoInfo>> addMemo (
             @Valid @RequestBody MemoAddRequest request,
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal OAuth2AuthenticationToken authentication
             ) {
+        
+        // JWT/Custom 인증을 통해 userId 획득
         String userId = userDetails.getUsername();
-        MemoResponse.MemoInfo memoInfo = memoService.addMemo(userId, request);
+        
+
+        Optional<OAuth2AuthenticationToken> authOpt = Optional.ofNullable(authentication);
+        
+        MemoResponse.MemoInfo memoInfo = memoService.addMemo(userId, request, authOpt); 
+        
         SuccessResponse<MemoResponse.MemoInfo> response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, memoInfo);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -103,7 +112,6 @@ public class MemoController {
             @PathVariable String memoId,
             @RequestBody MemoUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails
-
             ) {
         String userId = userDetails.getUsername();
         MemoResponse.MemoInfo updatedInfo = memoService.updateMemo(memoId, userId, request);
@@ -130,8 +138,4 @@ public class MemoController {
         SuccessResponse<Void> response = SuccessResponse.of(SuccessCode.DELETE_SUCCESS);
         return ResponseEntity.ok(response);
     }
-
-
-
-
 }
