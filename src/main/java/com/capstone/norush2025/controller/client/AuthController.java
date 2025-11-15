@@ -17,6 +17,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,5 +71,20 @@ public class AuthController {
         UserResponse.TokenInfo tokenInfo = tokenService.reissue(reissue);
         SuccessResponse response = SuccessResponse.of(SuccessCode.UPDATE_SUCCESS, tokenInfo);
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃")
+    public ResponseEntity<SuccessResponse<Void>> logout(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userId = userDetails.getUsername();
+        userService.logout(userId);
+        SecurityContextHolder.clearContext();      // 시큐리티 컨텍스트 비우기
+
+        SuccessResponse<Void> response =
+                SuccessResponse.of(SuccessCode.DELETE_SUCCESS, null);
+
+        return ResponseEntity.ok(response);
     }
 }

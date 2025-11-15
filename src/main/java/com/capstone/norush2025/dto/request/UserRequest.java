@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
-@Valid
+
 @Schema(description = "회원가입 요청 DTO")
 public class UserRequest {
     @Getter

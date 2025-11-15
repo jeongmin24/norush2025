@@ -44,6 +44,9 @@ dependencies {
     // health check path
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Valid 검증 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     // webclient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
