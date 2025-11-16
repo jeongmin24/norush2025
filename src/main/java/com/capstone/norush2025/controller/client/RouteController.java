@@ -31,7 +31,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/route")
 @RequiredArgsConstructor
-@Tag(name = "경로 조회 API", description = "대중교통 api를 이용한 대중교통 경로 조회 및 예측 관련 API")
+@Tag(name = "ROUTE", description = "대중교통 api를 이용한 대중교통 경로 조회 및 예측 관련 API")
 public class RouteController {
 
     private final RouteService routeService;
