@@ -9,7 +9,7 @@
 
 ### | 지하철 혼잡도를 예측하는 대중교통 경로 추천 서비스, **NoRush**
 
-✅ **NoRush**는 “가장 빠른 경로”가 아닌, **“덜 붐비는 쾌적한 경로”**를 찾고 싶은 이용자를 위해 개발된 지하철 혼잡도 기반 대중교통 경로 추천 서비스입니다.
+✅ **NoRush**는 “가장 빠른 경로”가 아닌, "**덜 붐비는 쾌적한 경로**"를 찾고 싶은 이용자를 위해 개발된 지하철 혼잡도 기반 대중교통 경로 추천 서비스입니다.
 
 ✅ 공공 데이터(서울시 승하차 인원, 시간대별 혼잡도 등)와 퍼즐(Puzzle) 칸별 혼잡도, 서울교통공사 혼잡도 API 등의 데이터를 활용해 **시간·역·호선·칸별 혼잡도를 예측**하고, 이를 바탕으로 경로의 혼잡도를 수치화합니다.
 
@@ -92,6 +92,17 @@
             <br/>
             <span style="font-size: 12px;">your_email@example.com</span>
         </td>
+        <td style="min-width: 150px;">
+                <a href="https://github.com/your-github">
+                  <img src="https://avatars.githubusercontent.com/u/000000?v=4" width="80">
+                  <br />
+                  <b>심준서</b>
+                </a>
+                <br/>
+                팀장,BE  
+                <br/>
+                <span style="font-size: 12px;">your_email@example.com</span>
+            </td>
         <td style="min-width: 150px;">
             <a href="https://github.com/your-github">
               <img src="https://avatars.githubusercontent.com/u/000000?v=4" width="80">
