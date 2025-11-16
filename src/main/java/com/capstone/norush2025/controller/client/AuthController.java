@@ -87,4 +87,35 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/me")
+    @Operation(summary = "사용자 정보 수정")
+    public ResponseEntity<SuccessResponse<UserResponse.UserUpdateResponse>> updateMyInfo(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UserRequest.UserUpdateRequest request) {
+
+        String userId = userDetails.getUsername();
+        UserResponse.UserUpdateResponse userUpdateResponse = userService.updateUserInfo(userId, request);
+
+        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, userUpdateResponse);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "사용자 정보 조회")
+    public ResponseEntity<SuccessResponse<UserResponse.UserInfo>> updateMyInfo(
+            @AuthenticationPrincipal UserDetails userDetails
+            ) {
+
+
+        String userId = userDetails.getUsername();
+        UserResponse.UserInfo userInfo = userService.getMyInfo(userId);
+
+        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, userInfo);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

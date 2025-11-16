@@ -3,13 +3,14 @@ package com.capstone.norush2025.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
 
-@Schema(description = "회원가입 요청 DTO")
+@Schema(description = "회원 요청 DTO")
 public class UserRequest {
     @Getter
     @Setter
@@ -99,6 +100,20 @@ public class UserRequest {
         @NotEmpty(message = "새 비밀번호를 입력해주세요")
         @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$", message = "영문자,숫자를 조합하여 8글자 이상 입력해주세요.")
         private String updatePassword;
+    }
+
+    @Getter
+    @Setter
+    public static class UserUpdateRequest {
+
+        @Schema(description = "변경할 이름", example = "홍길동")
+        private String name;   // null이면 수정 X
+
+        @Schema(description = "변경할 전화번호", example = "01012345678")
+        private String phoneNumber;   // null이면 수정 X
+
+        @Schema(description = "변경할 프로필 이미지 URL", example = "https://example.com/img.png")
+        private String profileImage;  // null이면 수정 X
     }
 
 

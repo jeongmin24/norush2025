@@ -41,6 +41,14 @@ public class UserResponse {
         }
     }
 
+    @Getter
+    @Builder
+    public static class UserUpdateResponse {
+        private String name;
+        private String phoneNumber;
+        private String profileImage;
+    }
+
     @Builder
     @Setter
     @Getter
