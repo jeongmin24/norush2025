@@ -17,6 +17,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,9 +53,17 @@ public class AuthController {
     @PostMapping("signin")
     public ResponseEntity<SuccessResponse<UserResponse.TokenInfo>> signIn(@Valid @RequestBody UserRequest.SignIn signIn){
         UserResponse.TokenInfo tokenInfo = tokenService.createToken(signIn);
-        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, tokenInfo);
+        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, tokenInfo); // SELECT_SUCCESS 로 고쳐야될듯?
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @Operation(summary = "가입 전 이메일 중복확인")
+    @GetMapping("/exist")
+    public ResponseEntity<Boolean> checkEmailDuplicate(@RequestParam String email) {
+        boolean exists = userService.findByEmail(email);
+        return ResponseEntity.ok(exists);
+    }
+
 
     @Operation(summary = "토큰 갱신")
     @PostMapping("reissue")
@@ -61,4 +72,50 @@ public class AuthController {
         SuccessResponse response = SuccessResponse.of(SuccessCode.UPDATE_SUCCESS, tokenInfo);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃")
+    public ResponseEntity<SuccessResponse<Void>> logout(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userId = userDetails.getUsername();
+        userService.logout(userId);
+        SecurityContextHolder.clearContext();      // 시큐리티 컨텍스트 비우기
+
+        SuccessResponse<Void> response =
+                SuccessResponse.of(SuccessCode.DELETE_SUCCESS, null);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/me")
+    @Operation(summary = "사용자 정보 수정")
+    public ResponseEntity<SuccessResponse<UserResponse.UserUpdateResponse>> updateMyInfo(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody UserRequest.UserUpdateRequest request) {
+
+        String userId = userDetails.getUsername();
+        UserResponse.UserUpdateResponse userUpdateResponse = userService.updateUserInfo(userId, request);
+
+        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, userUpdateResponse);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "사용자 정보 조회")
+    public ResponseEntity<SuccessResponse<UserResponse.UserInfo>> updateMyInfo(
+            @AuthenticationPrincipal UserDetails userDetails
+            ) {
+
+
+        String userId = userDetails.getUsername();
+        UserResponse.UserInfo userInfo = userService.getMyInfo(userId);
+
+        SuccessResponse response = SuccessResponse.of(SuccessCode.INSERT_SUCCESS, userInfo);
+        return ResponseEntity.ok(response);
+    }
+
+
+
 }

@@ -1,13 +1,17 @@
 package com.capstone.norush2025.service;
 
 import com.capstone.norush2025.common.FileDto;
+import com.capstone.norush2025.domain.user.CustomUserInfoDto;
 import com.capstone.norush2025.domain.user.User;
+import com.capstone.norush2025.dto.request.UserRequest;
 import com.capstone.norush2025.dto.response.UserResponse;
 import com.capstone.norush2025.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -17,8 +21,8 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
+    private final RedisService redisService;
 
     public void checkDuplicatedEmail(String email)  {
         Optional<User> user = userRepository.findByEmail(email);
@@ -26,6 +30,12 @@ public class UserService {
             log.debug("UserService.checkDuplicatedEmail exception occur email: {}", email);
             throw new IllegalArgumentException("이미 사용중인 이메일 입니다");
         }
+    }
+
+    // 가입 전 중복확인
+    public Boolean findByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isEmpty();
     }
 
     public UserResponse.UserInfo updateProfile(User user, FileDto fileDto){
@@ -58,4 +68,53 @@ public class UserService {
     public Optional<User> getUserByEmail(String email){
         return userRepository.findByEmail(email);
     }
+
+    public void logout(String userId) {
+        if (userId == null || userId.isBlank()) {
+            log.warn("로그아웃 요청, userId 가 비어있음");
+            return;
+        }
+
+        log.info("로그아웃 유저: userId={}", userId);
+        redisService.deleteRefreshToken(userId);
+    }
+
+    @Transactional
+    public UserResponse.UserUpdateResponse updateUserInfo(String userId, UserRequest.UserUpdateRequest request) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        // 이름 수정
+        if (request.getName() != null && !request.getName().trim().isEmpty()) {
+            user.updateName(request.getName());
+        }
+
+        // 전화번호 수정
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().trim().isEmpty()) {
+            user.updatePhoneNumber(request.getPhoneNumber());
+        }
+
+        // 프로필 이미지 수정
+        if (request.getProfileImage() != null && !request.getProfileImage().trim().isEmpty()) {
+            user.updateProfileImage(request.getProfileImage());
+        }
+
+        userRepository.save(user);
+
+        return UserResponse.UserUpdateResponse.builder()
+                .name(user.getName())
+                .phoneNumber(user.getPhoneNumber())
+                .profileImage(user.getProfileImage())
+                .build();
+    }
+
+    public UserResponse.UserInfo getMyInfo(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return new UserResponse.UserInfo(user);
+    }
+
 }

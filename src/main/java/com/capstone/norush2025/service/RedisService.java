@@ -27,4 +27,8 @@ public class RedisService {
     public String getRefrestToken(String userId){
         return  (String)redisTemplate.opsForValue().get(REFRESHTOKEN + userId);
     }
+
+    public void deleteRefreshToken(String userId) {
+        redisTemplate.delete(REFRESHTOKEN + userId);
+    }
 }

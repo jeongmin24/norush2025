@@ -20,7 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:8081",                 // React Native 로컬 앱 (Metro)
                         "exp://127.0.0.1:19000",                // Expo 로컬
                         "https://norush2025-i8pt.onrender.com",
-                        "https://expo.dev" // expo 웹뷰
+                        "https://expo.dev", // expo 웹뷰
+                        "http://10.0.2.2:8080" //안드로이드 에뮬레이터
 
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")

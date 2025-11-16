@@ -6,6 +6,7 @@ import com.capstone.norush2025.domain.user.User;
 import com.capstone.norush2025.dto.request.FavoriteRouteAddRequest;
 import com.capstone.norush2025.dto.request.FavoriteRouteUpdateRequest;
 import com.capstone.norush2025.dto.response.FavoriteRouteResponse;
+import com.capstone.norush2025.dto.response.RouteResponse;
 import com.capstone.norush2025.exception.BusinessLogicException;
 import com.capstone.norush2025.repository.FavoriteRouteRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,28 +24,61 @@ public class FavoriteRouteService {
 
     private final FavoriteRouteRepository favoriteRouteRepository;
     private final UserService userService;
+    private final RouteService routeService;
 
     @Transactional
     public FavoriteRouteResponse.FavoriteRouteInfo addFavoriteRoute(String userId, FavoriteRouteAddRequest request){
 
-        validateDuplicateFavorite(userId,request.getName());
+        String name = request.getName();
+
+        //validateDuplicateFavorite(userId,name);
+
+        if (name == null || name.isBlank()) {
+            name = generateDefaultName(request); // 기본 이름 자동 생성
+        }
 
         User user = userService.getUser(userId);
 
         /**
-         * 추후 수정 필요
+         * 좌표 저장
          * */
         FavoriteRoute newFavorite = FavoriteRoute.builder()
                 .userId(user.getUserId())
-                .name(request.getName())
-                .type(request.getType())
-                .routeId(request.getRouteId())
-                .memo(request.getMemo())
+                .name(name)
+                .startX(request.getStartX())
+                .startY(request.getStartY())
+                .endX(request.getEndX())
+                .endY(request.getEndY())
+                .startStopName(request.getStartName())
+                .endStopName(request.getEndName())
                 .build();
 
 
         FavoriteRoute savedFavorite = favoriteRouteRepository.save(newFavorite);
         return new FavoriteRouteResponse.FavoriteRouteInfo(savedFavorite);
+    }
+
+    // 기본 이름 자동 생성
+    private String generateDefaultName(FavoriteRouteAddRequest req) {
+        return String.format(req.getStartName() + " → " + req.getEndName());
+    }
+
+    // 즐겨찾기 상세조회
+    public RouteResponse getFavoriteRouteDetail(String userId, String favoriteRouteId) {
+        FavoriteRoute favorite = favoriteRouteRepository.findById(favoriteRouteId)
+                .orElseThrow(() -> new RuntimeException("즐겨찾기를 찾을 수 없습니다."));
+
+        if (!favorite.getUserId().equals(userId)) {
+            throw new RuntimeException("본인 즐겨찾기만 조회할 수 있습니다.");
+        }
+
+        return routeService.findRouteWithCongestion(
+                userId,
+                favorite.getStartX(),
+                favorite.getStartY(),
+                favorite.getEndX(),
+                favorite.getEndY()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -70,18 +104,18 @@ public class FavoriteRouteService {
         return new FavoriteRouteResponse.FavoriteRouteInfo(favoriteRoute);
     }
 
+
+
     @Transactional
     public FavoriteRouteResponse.FavoriteRouteInfo updateFavoriteRoute(String favoriteRouteId, String userId, FavoriteRouteUpdateRequest request){
 
         User user = userService.getUser(userId);
         FavoriteRoute existingFavoriteRoute = findFavoriteRouteByFavoriteRouteIdAndUserId(favoriteRouteId, user.getUserId());
 
-        existingFavoriteRoute.updateFavoriteRoute(
-                request.getName(),
-                request.getType(),
-                request.getRouteId(),
-                request.getMemo()
-        );
+        if (request.getName() != null && !request.getName().isBlank()) {
+            existingFavoriteRoute.updateFavoriteRoute(request.getName());
+        }
+
 
         FavoriteRoute updatedFavoriteRoute = favoriteRouteRepository.save(existingFavoriteRoute);
         return new FavoriteRouteResponse.FavoriteRouteInfo(updatedFavoriteRoute);

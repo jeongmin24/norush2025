@@ -5,6 +5,7 @@ import com.capstone.norush2025.dto.request.FavoriteRouteAddRequest;
 import com.capstone.norush2025.dto.request.FavoriteRouteUpdateRequest;
 import com.capstone.norush2025.dto.response.CalendarResponse;
 import com.capstone.norush2025.dto.response.FavoriteRouteResponse;
+import com.capstone.norush2025.dto.response.RouteResponse;
 import com.capstone.norush2025.response.ErrorResponse;
 import com.capstone.norush2025.response.SuccessResponse;
 import com.capstone.norush2025.service.FavoriteRouteService;
@@ -87,6 +88,27 @@ public class FavoriteRouteController {
         SuccessResponse<FavoriteRouteResponse.FavoriteRouteInfo> response = SuccessResponse.of(SuccessCode.SELECT_SUCCESS, favoriteRouteInfo);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "즐겨찾기 경로 상세조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "400", description = "요청 형식 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "해당 즐겨찾기가 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/detail/{favoriteRouteId}")
+    public ResponseEntity<RouteResponse> getFavoriteRouteDetail(
+            @PathVariable String favoriteRouteId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userId = userDetails.getUsername();
+        RouteResponse route = favoriteRouteService.getFavoriteRouteDetail(userId, favoriteRouteId);
+
+        return ResponseEntity.ok(route);
+
+    }
+
 
     @Operation(summary = "즐겨찾기 경로 수정")
     @ApiResponses({

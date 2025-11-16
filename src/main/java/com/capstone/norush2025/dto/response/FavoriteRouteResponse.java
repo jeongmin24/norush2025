@@ -13,23 +13,30 @@ public class FavoriteRouteResponse {
     public static class FavoriteRouteInfo {
         private String favoriteRouteId;
         private String userId;
+
         private String name;
-        private String type;
         private String routeId;
+
+        private Double startX;
+        private Double startY;
+        private Double endX;
+        private Double endY;
+
         private String startStopName;
         private String endStopName;
-        private String memo;
+
         private LocalDateTime createdAt;
 
         public FavoriteRouteInfo(FavoriteRoute favoriteRoute) {
             this.favoriteRouteId = favoriteRoute.getFavoriteRouteId();
             this.userId = favoriteRoute.getUserId();
             this.name = favoriteRoute.getName();
-            this.type = favoriteRoute.getType();
-            this.routeId = favoriteRoute.getRouteId();
+            this.startX = favoriteRoute.getStartX();
+            this.startY = favoriteRoute.getStartY();
+            this.endX = favoriteRoute.getEndX();
+            this.endY = favoriteRoute.getEndY();
             this.startStopName = favoriteRoute.getStartStopName();
             this.endStopName = favoriteRoute.getEndStopName();
-            this.memo = favoriteRoute.getMemo();
             this.createdAt = favoriteRoute.getCreatedAt();
         }
     }
